@@ -13,7 +13,7 @@ var logger = new (winston.Logger)({
   ]
 });
 
-logger.handleExceptions(new winston.transports.File({ filename: 'logs/uncaught-exceptions.log' }));
-logger.handleExceptions(new winston.transports.Console({ colorize: true }));
+// logger.handleExceptions(new winston.transports.File({ filename: 'logs/uncaught-exceptions.log' }));
+// logger.handleExceptions(new winston.transports.Console({ colorize: true }));
 
 module.exports = logger;

@@ -5,8 +5,8 @@ var _             = require('lodash');
 var logger        = require('helpers/logger');
 var io            = require('socket.io-client');
 var socket        = io(process.env.SERVER_URL, { extraHeaders: { 'x-client-id': process.env.CLIENT_ID, 'x-commands': _.keys(require('commands')()) } });
-var comm          = require('helpers/comm')(socket, logger); // include the communication tool
-var commands     = require('commands')(comm);
+var send          = require('helpers/send')(socket, logger); // include the communication tool
+var commands     = require('commands')(send);
 
 logger.log('debug', 'Starting client...');
 
@@ -29,17 +29,12 @@ socket.on('disconnect', function () {
  */
 socket.on('command', function (data) {
   if (!_.has(data, 'command'))
-    return comm.error('No command given.');
+    return send.error('No command given.');
 
   try {
-    if (_.has(commands, data['command']) && _.isFunction(command[data['command']])) {
-      return commands[data['command']](data);
-    }
-    else {
-      throw Error('Command not found: '+data['command']);
-    }
+    commands.run(data['command'], data);
   }
   catch(err) {
-    comm.error(err);
+    send.error(err);
   }
 });
