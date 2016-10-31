@@ -1,7 +1,8 @@
 var _ = require('lodash');
 var winston = require('winston');
 var WebSocket = require('ws');
-var cmd = require('node-cmd');
+var bash = require('node-cmd');
+var handleMessage = require('./handle-message');
 
 // connect  to server
 var ws = new WebSocket('ws://localhost:3000/', {
@@ -21,7 +22,9 @@ var logger = new (winston.Logger)({
     }),
   ]
 });
+
 logger.handleExceptions(new winston.transports.File({ filename: 'logs/uncaught-exceptions.log' }));
+logger.handleExceptions(new winston.transports.Console({ colorize: true }));
 
 
 /** 
@@ -72,14 +75,21 @@ var receive = function(data) {
 var send = function(response, type, data) {
   var generatedData = {};
 
-  generatedData.response = response;
+  if (_.isBoolean(response)) {
+    generatedData.response = response;
+  }
+  else {
+    generatedData.response = false;
+
+    data = type;
+    type = response;
+  }
 
   if (_.isString(type)) {
     generatedData.type = type;
   }
-
-  if (_.isUndefined(results) && !_.isString(type)) {
-    results = type;
+  else {
+    data = type;
   }
 
   if (!_.isUndefined(data)) {
@@ -94,35 +104,58 @@ var send = function(response, type, data) {
     }
   }
 
-  return JSON.stringify(generatedData);
+  if (_.isUndefined(type) && _.isUndefined(data)) {
+    logger.log('debug', 'Type and/or data is required');
+
+    throw Error('Type and/or data is required');
+  }
+
+  ws.send(JSON.stringify(generatedData));
 };
 
 /**
- * Runs a the given command in bash
+ * generates a simple bash command
+ * 
+ * @param cmd   string - the main command
+ * @param addon string - anything tacked on after the command (flags, params, etc)
+ * @param cb    fn     - the callback
+ */
+var runSingleCommand = function(cmd, addon, cb) {
+  var generatedCmd = "if hash "+cmd+" 2>/dev/null; then "+cmd+" "+addon+"; else echo \"not_found\"; fi;";
+
+  runBash(generatedCmd, function(err, data) {
+    if (data.output === "not_found") {
+      logger.log('info', 'Command not found: %s', cmd);
+
+      cb(new Error('Command not found: %s', cmd));
+    }
+    else {
+      data.cmd = cmd;
+      data.addon = addon;
+      data.generated_cmd = generatedCmd;
+
+      cb(null, data);
+    }
+  });
+}
+
+/**
+ * Runs a the given string in bash
  *
  * @param cmd string
  * @param cb  function
  */
-var runCommand = function(cmd, cb) {
+var runBash = function(cmd, cb) {
   try {
-  cmd.get("if hash raspistill 2>/dev/null; then raspistill -o "+name+"; else echo \"error\"; fi;",
-    function(output) {
-      if (output === "error") {
-        logger.log('debug', 'Error running command: %s', cmd);
-
-        cb(new Error('Error running command: %s', cmd));
-      }
-      else {
-        cb(null, {
-          "cmd": cmd,
-          "output": data
-        });
-      }
-    }
-  );
+    bash.get(cmd, function(output) {
+      cb(null, {
+        "cmd": cmd,
+        "output": data
+      });
+    });
   }
   catch (err) {
-    logger.log('error', err.toString());
+    logger.log('error', 'Error running %s: %s', cmd, err.toString());
     cb(err);
   }
 };
@@ -148,5 +181,13 @@ ws.on('close', function close() {
 ws.on('message', function message(data, flags) {
   data = receive(data);
 
-  
+  // try {
+    var response = handleMessage(data, flags);
+    
+    // if (response)
+    //   send(message(response));
+  // }
+  // catch(err) {
+  //   send(message(err));
+  // } 
 });
