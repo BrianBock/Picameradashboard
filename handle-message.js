@@ -1,26 +1,43 @@
-var _ = require('lodash');
-var bash = require('./bash');
-var commands = {};
+var _          = require('lodash');
+var bash       = require('./helpers/bash');
+var logger     = require('./helpers/logger');
+var functions  = {};
+module.exports = function(comm) {
 
-module.exports = function(data, flags, cb) {
-  if (_.has(data, 'cmd')) {
-    if (_.has(commands, data['cmd']) && _.isFunction(commands, data['cmd'])) {
-      return commands[data['cmd']](data, cb);
+  ///////////////////////////////
+  // WRITE YOUR FUNCTIONS HERE //
+  ///////////////////////////////
+
+
+
+  functions['take-still'] = function(data) {
+    var name = data.name || new Date().getTime() + '.jpg';
+
+    bash.single('raspistill', '-o '+name, function(err, output) {
+      if (err)
+        return comm.send('error', comm.error("Looks like the command `respstill` doesn't exist on this pi"));
+
+      return comm.send(comm.message(output));
+    });
+  };
+
+
+
+  ///////////////////////////////
+  //  END YOUR FUNCTIONS HERE  //
+  ///////////////////////////////
+
+  var handleMessage = function(data, flags) {
+    if (_.has(data, 'cmd')) {
+      if (_.has(functions, data['cmd']) && _.isFunction(functions[data['cmd']])) {
+        return functions[data['cmd']](data);
+      }
+      else {
+        throw Error('Function not found: '+data['cmd']);
+      }
     }
-    else {
-      throw Error('Command not found: '+data['cmd']);
-    }
-  }
-};
+  };
 
-///////////////////////////////
-// WRITE YOUR FUNCTIONS HERE //
-///////////////////////////////
 
-commands['take-still'] = function(data, cb) {
-  var name = data.name || new Date.toString() + '.jpg';
-
-  bash.single('raspistill', '-o '+name, function(err, output) {
-    cb('')
-  });
+  return handleMessage;
 };

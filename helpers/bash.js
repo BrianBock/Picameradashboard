@@ -1,7 +1,5 @@
-module.exports = {
-  run: run,
-  single: single
-};
+var logger = require('./logger');
+var bash   = require('node-cmd');
 
 /**
  * generates a simple bash command
@@ -14,11 +12,11 @@ var single = function(cmd, addon, cb) {
   var generatedCmd = "if hash "+cmd+" 2>/dev/null; then "+cmd+" "+addon+"; else echo \"not_found\"; fi;";
 
   run(generatedCmd, function(err, data) {
-    if (err)
-      cb(err);
+    if (err) 
+      return cb(err);
 
-    if (data.output === "not_found") {
-      logger.log('info', 'Command not found: %s', cmd);
+    if (data.output.indexOf("not_found") >= 0) {
+      logger.log('debug', 'Command not found: %s', cmd);
 
       cb(new Error('Command not found: %s', cmd));
     }
@@ -41,9 +39,11 @@ var single = function(cmd, addon, cb) {
 var run = function(cmd, cb) {
   try {
     bash.get(cmd, function(output) {
+      logger.log('debug', 'Ran command: %s', cmd);
+
       cb(null, {
         "cmd": cmd,
-        "output": data
+        "output": output
       });
     });
   }
@@ -51,4 +51,9 @@ var run = function(cmd, cb) {
     logger.log('error', 'Error running %s: %s', cmd, err.toString());
     cb(err);
   }
+};
+
+module.exports = {
+  run: run,
+  single: single
 };
