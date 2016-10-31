@@ -3,7 +3,7 @@ require('dotenv').config();
 var _             = require('lodash');
 var logger        = require('./helpers/logger');
 var WebSocket     = require('ws');
-var ws            = new WebSocket(process.env.SERVER_URL, { headers: { 'x-pi-id': process.env.PI_ID, 'x-functions': _.keys(require('./functions')()) } });
+var ws            = new WebSocket(process.env.SERVER_URL, { headers: { 'x-pi-secret-id': process.env.PI_SECRET_ID, 'x-functions': _.keys(require('./functions')()) } });
 var comm          = require('./helpers/comm')(ws, logger); // include the communication tool
 var functions     = require('./functions')(comm);
 var handleMessage = require('./helpers/handle-message')(functions); // function for calling the client-side functions on the pi
