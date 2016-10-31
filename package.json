@@ -11,11 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "app-module-path": "^2.1.0",
     "dotenv": "^2.0.0",
     "lodash": "^4.16.4",
     "node-cmd": "^1.1.1",
-    "winston": "^2.2.0",
-    "ws": "^1.1.1"
+    "socket.io-client": "^1.5.1",
+    "winston": "^2.2.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

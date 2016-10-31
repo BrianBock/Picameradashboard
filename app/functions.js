@@ -1,5 +1,5 @@
 var _    = require('lodash');
-var bash = require('./helpers/bash');
+var bash = require('helpers/bash');
 
 module.exports = function(comm) {
   var _functions = {};
