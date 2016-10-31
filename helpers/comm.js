@@ -1,12 +1,12 @@
-var _      = require('lodash');
-var logger = require('./logger');
+var _  = require('lodash');
 
-module.exports = function(ws) {
+module.exports = function(ws, logger) {
+  var comm = {};
 
   /** 
    * Generate a message
    */
-  var message = function(message) {
+  comm['message'] = function(message) {
     return {
       "message": message
     };
@@ -15,7 +15,7 @@ module.exports = function(ws) {
   /** 
    * Generate a error
    */
-  var error = function (message, code) {
+  comm['error'] = function (message, code) {
     var error = {};
 
     if (_.isError(message))
@@ -34,7 +34,7 @@ module.exports = function(ws) {
   /**
    * Parse the given message from the server
    */
-  var receive = function(data) {
+  comm['receive'] = function(data) {
     logger.log('info', 'Received message', data);
     try {
       return JSON.parse(data);
@@ -53,7 +53,7 @@ module.exports = function(ws) {
    * @param type     bool optional
    * @param data     object optional
    */
-  var send = function(response, type, data) {
+  comm['send'] = function(response, type, data) {
     var generatedData = {};
 
     if (_.isBoolean(response)) {
@@ -95,10 +95,5 @@ module.exports = function(ws) {
     logger.log('info', 'Sent message', JSON.stringify(generatedData));
   };
 
-  return {
-    message: message,
-    error: error,
-    receive: receive,
-    send: send
-  };
+  return comm;
 };

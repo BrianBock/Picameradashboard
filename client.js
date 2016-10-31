@@ -1,25 +1,23 @@
-var WebSocket     = require('ws');
-var ws            = new WebSocket('ws://localhost:3000/', {
-  headers: {
-    'x-pi-id': 'my-pi'
-  }
-});
+var _             = require('lodash');
 var logger        = require('./helpers/logger');
-var comm          = require('./helpers/comm')(ws); // include the communication tool
-var handleMessage = require('./handle-message')(comm); // function for calling the client-side functions on the pi
+var WebSocket     = require('ws');
+var ws            = new WebSocket('ws://localhost:3000/', { headers: { 'x-pi-id': 'my-pi', 'x-functions': _.keys(require('./functions')()) } });
+var comm          = require('./helpers/comm')(ws, logger); // include the communication tool
+var functions     = require('./functions')(comm);
+var handleMessage = require('./helpers/handle-message')(functions); // function for calling the client-side functions on the pi
 
 /**
  * Listen for connection to server
  */
 ws.on('open', function open() {
-  logger.log('debug', 'Connected to server');
+  logger.log('info', 'Connected to server');
 });
 
 /**
  * Listen for disconnection to server
  */
 ws.on('close', function close() {
-  logger.log('debug', 'Disconnected from server');
+  logger.log('info', 'Disconnected from server');
 });
 
 /**
