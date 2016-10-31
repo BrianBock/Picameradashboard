@@ -42,10 +42,15 @@ var message = function(message) {
 var error = function (message, code) {
   var error = {};
 
+  if (_.isError(message))
+    message = message.toString();
+
   error.message = message;
 
   if (!_.isUndefined(code))
-    error.code = code;
+    code = 0;
+
+  error.code = code;
 
   return error;
 };
@@ -79,7 +84,7 @@ var send = function(response, type, data) {
     generatedData.response = response;
   }
   else {
-    generatedData.response = false;
+    generatedData.response = true;
 
     data = type;
     type = response;
@@ -111,55 +116,8 @@ var send = function(response, type, data) {
   }
 
   ws.send(JSON.stringify(generatedData));
+  logger.log('info', 'Sent message', data);
 };
-
-/**
- * generates a simple bash command
- * 
- * @param cmd   string - the main command
- * @param addon string - anything tacked on after the command (flags, params, etc)
- * @param cb    fn     - the callback
- */
-var runSingleCommand = function(cmd, addon, cb) {
-  var generatedCmd = "if hash "+cmd+" 2>/dev/null; then "+cmd+" "+addon+"; else echo \"not_found\"; fi;";
-
-  runBash(generatedCmd, function(err, data) {
-    if (data.output === "not_found") {
-      logger.log('info', 'Command not found: %s', cmd);
-
-      cb(new Error('Command not found: %s', cmd));
-    }
-    else {
-      data.cmd = cmd;
-      data.addon = addon;
-      data.generated_cmd = generatedCmd;
-
-      cb(null, data);
-    }
-  });
-}
-
-/**
- * Runs a the given string in bash
- *
- * @param cmd string
- * @param cb  function
- */
-var runBash = function(cmd, cb) {
-  try {
-    bash.get(cmd, function(output) {
-      cb(null, {
-        "cmd": cmd,
-        "output": data
-      });
-    });
-  }
-  catch (err) {
-    logger.log('error', 'Error running %s: %s', cmd, err.toString());
-    cb(err);
-  }
-};
-
 
 /**
  * Listen for connection to server
@@ -181,13 +139,17 @@ ws.on('close', function close() {
 ws.on('message', function message(data, flags) {
   data = receive(data);
 
-  // try {
-    var response = handleMessage(data, flags);
-    
-    // if (response)
-    //   send(message(response));
-  // }
-  // catch(err) {
-  //   send(message(err));
-  // } 
+  try {
+    handleMessage(data, flags, send, function(err, response) {
+      if (err) {
+        send(true, 'error', error(err));
+      }
+      else if (response) {
+          send(true, message(response));
+      }
+    });
+  }
+  catch(err) {
+    send(true, 'error', error(err));
+  } 
 });
