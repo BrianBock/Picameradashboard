@@ -4,9 +4,9 @@ require('dotenv').config();
 var _             = require('lodash');
 var logger        = require('helpers/logger');
 var io            = require('socket.io-client');
-var socket        = io(process.env.SERVER_URL, { extraHeaders: { 'x-client-id': process.env.CLIENT_ID, 'x-commands': _.keys(require('commands')()) } });
+var socket        = io(process.env.SERVER_URL+'clients', { extraHeaders: { 'x-client-id': process.env.CLIENT_ID, 'x-commands': require('commands')().names() } });
 var send          = require('helpers/send')(socket, logger); // include the communication tool
-var commands     = require('commands')(send);
+var commands      = require('commands')(send);
 
 logger.log('debug', 'Starting client...');
 
@@ -15,6 +15,10 @@ logger.log('debug', 'Starting client...');
  */
 socket.on('connect', function () {
   logger.log('info', 'Connected to server');
+});
+
+socket.on('connect_error', function () {
+  logger.log('info', 'Failed to connect to server');
 });
 
 /**

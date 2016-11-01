@@ -79,7 +79,7 @@ module.exports = function(socket, logger) {
    * Returns a string of JSON data to send to the server
    *
    * @param type     bool optional
-   * @param data     object optional
+   * @param data     object
    * @param isResponse bool optional
    */
   send['data'] = function(type, data, isResponse) {

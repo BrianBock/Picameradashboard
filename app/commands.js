@@ -55,6 +55,14 @@ module.exports = function(send) {
       throw Error('Command not found: '+data['command']);
     }
   };
+
+  var names = function() {
+    return _.keys(_commands);
+  }
   
-  return _commands;
+  return {
+    exists: exists,
+    run: run,
+    names: names
+  };
 };
