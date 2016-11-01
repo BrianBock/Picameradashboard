@@ -5,33 +5,27 @@ module.exports = function(socket, logger) {
 
   var isResponseDefault = true;
   var setDefault = function(original, fallback) {
-    return typeof _.isUndefined(original) ? fallbakc : original;
+    return typeof _.isUndefined(original) ? fallback : original;
   }
 
   /** 
-   * Send a message
+   * Send update
    */
-  send['status'] = function(status, decription, isResponse) {
+  send.update = function(update, isResponse) {
     isResponse = setDefault(isResponse, isResponseDefault);
 
-    if (_.isBoolean(description)) {
-      isResponse = description;
-    }
 
     var data = {
-      "status": status
+      "update": update
     };
 
-    if (_.isString(description))
-      data["description"] = description;
-
-    send.data('status', data, isResponse);
+    send.data('update', data, isResponse);
   };
 
   /** 
    * Send a message
    */
-  send['message'] = function(message, isResponse) {
+  send.message = function(message, isResponse) {
     isResponse = setDefault(isResponse, isResponseDefault);
 
     send.data('message', {
@@ -42,7 +36,7 @@ module.exports = function(socket, logger) {
   /** 
    * Send a error
    */
-  send['error'] = function (errors, code, isResponse) {
+  send.error = function (errors, code, isResponse) {
     isResponse = setDefault(isResponse, isResponseDefault);
 
     if (_.isBoolean(code)) {
@@ -82,7 +76,7 @@ module.exports = function(socket, logger) {
    * @param data     object
    * @param isResponse bool optional
    */
-  send['data'] = function(type, data, isResponse) {
+  send.data = function(type, data, isResponse) {
     isResponse = setDefault(isResponse, isResponseDefault);
 
     var generatedData = {};

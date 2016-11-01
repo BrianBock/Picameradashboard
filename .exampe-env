@@ -1,0 +1,3 @@
+SERVER_URL=ws://localhost:3000/
+CLIENT_ID=client-id
+LOG_LEVEL=debug

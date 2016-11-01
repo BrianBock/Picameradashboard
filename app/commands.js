@@ -32,10 +32,17 @@ module.exports = function(send) {
 
   register('run-bash', function(data) {
     var bash = data.params.bash;
-    send.status('working', 'Running bash command...');
+    send.update({
+      status: 'working',
+      description: 'Running bash command...'
+    });
     bash.run(bash, function(err, result) {
       send.message(result);
-      send.status('online');
+
+      send.update({
+        status: 'online',
+        description: ''
+      });
     });
   });
 
