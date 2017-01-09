@@ -26,7 +26,7 @@ Once the repo is deployed you should see the dashboard running at your app url.
 
 Now that we have the dashboard running we need to set up a Raspberry Pi to control. 
 
-Clone the [Remote PI Controller: Clinet]() repository and install the required dependencies on your Raspberry Pi.
+Clone the [Remote PI Controller: Client]() repository and install the required dependencies on your Raspberry Pi.
 ```
 git clone [repo_url]remote-pi-controller-client.git
 cd remote-pi-controller-client

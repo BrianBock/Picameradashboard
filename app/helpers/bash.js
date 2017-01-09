@@ -1,5 +1,6 @@
 var logger = require('./logger');
-var bash   = require('node-cmd');
+var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
 
 /**
  * generates a simple bash command
@@ -38,12 +39,20 @@ var single = function(cmd, addon, cb) {
  */
 var run = function(cmd, cb) {
   try {
-    bash.get(cmd, function(output) {
+    exec(cmd, function(err, stdout, stderr) {
       logger.log('debug', 'Ran command: %s', cmd);
 
-      cb(null, {
+      if (err) {
+        return cb(err);
+      }
+
+      if (stderr) {
+        return cb(stderr);
+      }
+
+      return cb(null, {
         "cmd": cmd,
-        "output": output
+        "output": stdout
       });
     });
   }
@@ -53,7 +62,30 @@ var run = function(cmd, cb) {
   }
 };
 
+var stream = function(cmd, cb) {
+  var results = spawn(cmd);
+
+  results.stdout.on('data', function(data) {
+    cb(null, {
+      "output": data
+    });
+  });
+
+  results.stderr.on('data', function(data) {
+    cb(data);
+  });
+
+  results.on('close', function(code) {
+    cb(null, {
+      "close": true,
+      "code": code,
+      "output": "Process exited with code: "+code
+    });
+  })
+}
+
 module.exports = {
   run: run,
-  single: single
+  single: single,
+  stream: stream
 };

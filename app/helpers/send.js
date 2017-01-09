@@ -3,70 +3,56 @@ var _  = require('lodash');
 module.exports = function(socket, logger) {
   var send = {};
 
-  var isResponseDefault = true;
-  var setDefault = function(original, fallback) {
-    return typeof _.isUndefined(original) ? fallback : original;
-  }
-
   /** 
    * Send update
    */
-  send.update = function(update, isResponse) {
-    isResponse = setDefault(isResponse, isResponseDefault);
-
-
+  send.update = function(update) {
     var data = {
+      "type": "update",
       "update": update
     };
 
-    send.data('update', data, isResponse);
+    socket.emit('update', data);
+    logger.log('info', 'Sent update: %s', JSON.stringify(data));
   };
 
   /** 
    * Send a message
    */
-  send.message = function(message, isResponse) {
-    isResponse = setDefault(isResponse, isResponseDefault);
+  send.message = function(message) {
+
+    message = _.isString(message) ? message : JSON.stringify(message);
 
     send.data('message', {
       "message": message
-    }, isResponse);
+    });
   };
 
   /** 
-   * Send a error
+   * Send a console message
    */
-  send.error = function (errors, code, isResponse) {
-    isResponse = setDefault(isResponse, isResponseDefault);
+  send.log = function(log) {
 
-    if (_.isBoolean(code)) {
-      isResponse = code;
-      code = undefined;
-    }
+    log = _.isString(log) ? log : JSON.stringify(log);
+
+    send.data('log', {
+      "output": log
+    });
+  };
+
+  /** 
+   * Send a exception
+   */
+  send.exception = function (exception, code) {
 
     if (_.isUndefined(code)) {
       code = 0;
     }
 
-    if (!_.isArray(errors)) {
-      errors = [{
-        message: errors.toString(),
-        code: code
-      }];
-    }
-
-    _.forEach(errors, function(error, index) {
-      if (_.isString(error) || _.isError(error)) {
-        errors[index] = {
-          message: error.toString(),
-          code: code
-        };
-      }
+    send.data('exception', {
+      message: exception.toString(),
+      code: code
     });
-
-    send.data('error', {
-      errors: errors
-    }, isResponse);
   };
 
   /**
@@ -74,21 +60,17 @@ module.exports = function(socket, logger) {
    *
    * @param type     bool optional
    * @param data     object
-   * @param isResponse bool optional
    */
-  send.data = function(type, data, isResponse) {
-    isResponse = setDefault(isResponse, isResponseDefault);
+  send.data = function(type, data) {
 
     var generatedData = {};
 
-    if (!_.isString(type)) {      
-      isResponse = _.isBoolean(data) ? data : isResponse;
+    if (!_.isString(type)) {
       data = type;
       type = 'data';
     }
 
     generatedData.type = type;
-    generatedData.isResponse = isResponse;
 
     logger.log('debug', 'Sending %s...', type);
 
@@ -101,7 +83,7 @@ module.exports = function(socket, logger) {
       throw Error('Data is required');
     }
 
-    socket.emit(type, generatedData);
+    socket.emit('data', generatedData);
     logger.log('info', 'Sent %s: %s', type, JSON.stringify(generatedData));
   };
 

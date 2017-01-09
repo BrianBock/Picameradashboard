@@ -14,18 +14,18 @@ logger.log('debug', 'Starting client...');
  * Listen for connection to server
  */
 socket.on('connect', function () {
-  logger.log('info', 'Connected to server');
+  logger.log('debug', 'Connected to server');
 });
 
 socket.on('connect_error', function () {
-  logger.log('info', 'Failed to connect to server');
+  logger.log('debug', 'Failed to connect to server');
 });
 
 /**
  * Listen for disconnection to server
  */
 socket.on('disconnect', function () {
-  logger.log('info', 'Disconnected from server');
+  logger.log('debug', 'Disconnected from server');
 });
 
 /**
@@ -33,12 +33,12 @@ socket.on('disconnect', function () {
  */
 socket.on('command', function (data) {
   if (!_.has(data, 'command'))
-    return send.error('No command given.');
+    return send.exception('No command given.');
 
   try {
     commands.run(data['command'], data);
   }
   catch(err) {
-    send.error(err);
+    send.exception(err);
   }
 });
