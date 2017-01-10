@@ -122,7 +122,7 @@ module.exports = function(send) {
     if (err)
         return send.log(err.toString());
       
-      return send.log(result.output);
+      return send.log(output.output);
     });
   });
   //////////////////////////////
