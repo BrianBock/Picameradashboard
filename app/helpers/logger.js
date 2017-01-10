@@ -5,11 +5,11 @@ var logger = new (winston.Logger)({
       colorize: true,
       level: process.env.LOG_LEVEL || 'info'
     }),
-    new (winston.transports.File)({
-      name: 'general-file',
-      filename: 'logs/general.log',
-      level: process.env.LOG_LEVEL || 'info'
-    }),
+    // new (winston.transports.File)({
+    //   name: 'general-file',
+    //   filename: 'logs/general.log',
+    //   level: process.env.LOG_LEVEL || 'info'
+    // }),
   ]
 });
 
