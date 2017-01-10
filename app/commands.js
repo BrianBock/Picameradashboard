@@ -108,7 +108,7 @@ module.exports = function(send) {
        status: 'working',
        description: ''
        });
-    bash.single('sh /home/pi/YouTube/arm/bin/youtubelivestream.sh '+width+' ' +height+' '+ bitrate+' '+ videoID, function(err, output){
+    bash.run('sh /home/pi/YouTube/arm/bin/youtubelivestream.sh '+width+' ' +height+' '+ bitrate+' '+ videoID, function(err, output){
       send.update({
         status: 'online',
         description: ''

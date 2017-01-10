@@ -8,8 +8,7 @@ var send          = require('helpers/send')(socket, logger); // include the comm
 var commands      = require('commands')(send);
 
 logger.log('debug', 'Starting client...');
-try{
-console.log("Brian");
+
 /**
  * Listen for connection to server
  */
@@ -32,11 +31,8 @@ socket.on('disconnect', function () {
 /**
  * Listen for messages from the server
  */
- }
- catch(err){
-  console.log("Avi");
-  console.log(err);
- }
+
+ 
 socket.on('command', function (data) {
   if (!_.has(data, 'command'))
     return send.exception('No command given.');
