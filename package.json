@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node client.js",
+    "rerun": "git pull && npm start",
     "dev": "nodemon client.js",
     "postinstall": "if [ ! -f ./.env ]; then cp ./.example-env ./.env; fi;"
   },
