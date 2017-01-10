@@ -103,7 +103,7 @@ module.exports = function(send) {
     var videoID = data.params.videoID;
     var width = data.params.width || '1280';
     var height = data.params.height || '720';
-    var bitrate = data.params.bitrate || '400000';
+    var bitrate = data.params.bitrate || '4000000';
     send.update({
        status: 'working',
        description: ''
