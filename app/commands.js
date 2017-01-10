@@ -101,13 +101,14 @@ module.exports = function(send) {
 
    register('youtube-live', function(data) {
     var videoID = data.params.videoID;
-    var width = data.params.width;
-    var height = data.params.height;
-    var bitrate = data.params.bitrate;
-    var youtube = raspivid -o - -t 0 -w width -h height -fps 25 -b bitrate -g 50 | ./ffmpeg -re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 0k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/videoID
-
-    
-    bash.single('raspivid -o - -t 0 -w '+width+' -h '+height+' -fps 25 -b '+bitrate+' -g 50 | ./ffmpeg -re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 0k -g 50 -strict experimental -f flv rtmp://a.rtmp.youtube.com/live2/'+videoID, function(err, output){
+    var width = data.params.width || '1280';
+    var height = data.params.height || '720';
+    var bitrate = data.params.bitrate || '400000';
+    send.update({
+       status: 'working',
+       description: ''
+       });
+    bash.single('sh /home/pi/YouTube/arm/bin/youtubelivestream.sh '+width+' ' +height+' '+ bitrate+' '+ videoID, function(err, output){
       send.update({
         status: 'online',
         description: ''
@@ -118,7 +119,7 @@ module.exports = function(send) {
       
       return send.log(result.output);
     });
-
+  });
   //////////////////////////////
   //  END YOUR COMMANDS HERE  //
   //////////////////////////////
