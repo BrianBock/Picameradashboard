@@ -117,7 +117,7 @@ module.exports = function(send) {
       //   status: 'online',
       //   description: ''
       // });
-      console.log(result);
+      console.log(output);
 
     if (err)
         return send.log(err.toString());
