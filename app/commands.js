@@ -108,11 +108,16 @@ module.exports = function(send) {
        status: 'working',
        description: ''
        });
-    bash.run('sh /home/pi/YouTube/arm/bin/youtubelivestream.sh '+width+' ' +height+' '+ bitrate+' '+ videoID, function(err, output){
-      send.update({
-        status: 'online',
-        description: ''
-      });
+    console.log(videoID);
+    console.log(width);
+    console.log(height);
+    console.log(bitrate);
+    bash.stream('sh /home/pi/YouTube/arm/bin/youtubelivestream.sh '+width+' ' +height+' '+ bitrate+' '+ videoID, function(err, output){
+      // send.update({
+      //   status: 'online',
+      //   description: ''
+      // });
+      console.log(result);
 
     if (err)
         return send.log(err.toString());
